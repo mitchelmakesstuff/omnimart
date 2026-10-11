@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4F46E5">
+<meta name="apple-mobile-web-app-title" content="OmniMart">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <title>OmniMart</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -225,6 +233,17 @@
   }
   .rider-banner-btn svg{ width:14px; height:14px; }
 
+  .home-empty{
+    margin:10px 20px 0; padding:34px 22px 26px; text-align:center;
+    border:1.5px dashed var(--border); border-radius:22px; background:var(--glass-fill-2);
+  }
+  .home-empty-icon{
+    width:58px; height:58px; border-radius:50%; background:var(--brand-soft); color:var(--brand);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 14px;
+  }
+  .home-empty-icon svg{ width:28px; height:28px; }
+  .home-empty h3{ font-size:1.15rem; margin-bottom:6px; }
+  .home-empty p{ font-size:0.88rem; color:var(--muted); margin:0 0 18px; line-height:1.5; }
   .eyebrow-head{ padding:4px 20px 12px; }
   .eyebrow{ display:block; font-size:0.72rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--brand); margin-bottom:3px; }
   .eyebrow-head h2{ font-size:1.2rem; }
@@ -724,7 +743,7 @@
         </button>
       </div>
       <div class="chip-row" id="chip-row"></div>
-      <div class="eyebrow-head">
+      <div class="eyebrow-head" id="home-head">
         <span class="eyebrow">Browse the market</span>
         <div style="display:flex; align-items:baseline; justify-content:space-between;">
           <h2>All listings</h2>
@@ -732,6 +751,15 @@
         </div>
       </div>
       <div class="grid" id="listing-grid"></div>
+      <div class="home-empty" id="home-empty" style="display:none;">
+        <div class="home-empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9l1.5-5h13L20 9"/><path d="M4 9h16v2a3 3 0 0 1-5.3 1.9A3 3 0 0 1 12 14a3 3 0 0 1-2.7-1.1A3 3 0 0 1 4 11z"/><path d="M5.5 14v6h13v-6"/></svg>
+        </div>
+        <h3>No listings yet</h3>
+        <p>When people list items, they'll show up here. Be the first: list something and see how it looks to buyers.</p>
+        <button class="btn btn-primary" id="home-empty-sell">List an item</button>
+        <p class="field-hint" style="margin-top:14px;">Preview version: items you list are saved on this device only.</p>
+      </div>
     </section>
 
     <!-- ============ SELL ============ -->
@@ -768,6 +796,7 @@
         <p class="field-hint">Buyers pay by bank transfer. The money is held in escrow and released to you once they confirm they received the item.</p>
 
         <button class="btn btn-primary" id="sell-submit" style="margin-top:22px;">Publish listing</button>
+        <p class="field-hint" style="text-align:center;">Preview version: your listing is saved on this device only.</p>
       </div>
     </section>
 
@@ -1077,16 +1106,10 @@
   /* People (sellers) and riders carry a trust score 0-100, shown everywhere
      as a colored tag rather than a star rating. */
   var PEOPLE = {
-    chidi:      { name:'Chidi O.',       trust:90, joined:'Jan 2025', bio:'Verified electronics reseller, ships same day.' },
-    amaka:      { name:'Amaka T.',       trust:58, joined:'Aug 2026', bio:'Fabric and fashion picks from the market.' },
-    emeka:      { name:'Emeka N.',       trust:42, joined:'Sep 2026', bio:'Selling household items as we downsize.' },
-    fatima:     { name:'Fatima B.',      trust:95, joined:'Mar 2024', bio:'Gaming gear, always tested before listing.' },
-    cleanright: { name:'CleanRight Co.', trust:67, joined:'Nov 2025', bio:'Two-person home cleaning team, Abuja-based.' },
-    yusuf:      { name:'Yusuf A.',       trust:34, joined:'Jul 2026', bio:'Two recent orders ended in disputes.' },
-    grace:      { name:'Grace M.',       trust:72, joined:'Feb 2025', bio:'Pre-loved fashion and accessories.' },
-    tunde:      { name:'Tunde K.',       trust:44, joined:'Sep 2026', bio:'First few listings on OmniMart.' },
-    you:        { name:'You',            trust:75, joined:'Today', bio:'' }
+    you: { name:'You', trust:75, joined:'Today', bio:'' }
   };
+  function personName(id){ return (PEOPLE[id] || { name:id }).name; }
+
   var RIDERS = {
     musa:    { name:'Musa I.',    trust:88, deliveries:212, onTime:0.97 },
     blessing:{ name:'Blessing E.',trust:95, deliveries:340, onTime:0.99 },
@@ -1108,16 +1131,11 @@
     return '<span class="trust-tag trust-tag-'+t.cls+'">'+t.label+'</span>';
   }
 
-  var SEED_LISTINGS = [
-    { id:'l1', title:'iPhone 13 Pro, 256GB', category:'electronics', price:450000, seller:'chidi', city:'Abuja, NG', desc:'Barely used, battery health 94%. Comes with original box and charger. No scratches on the screen.', payments:['bank'], sales:14, reviews:9 },
-    { id:'l2', title:'Ankara print fabric set', category:'fashion', price:18000, seller:'amaka', city:'Lagos, NG', desc:'Six yards of premium Ankara, two colourways. Fresh from the market this week.', payments:['bank'], sales:2, reviews:1 },
-    { id:'l3', title:'Tiger 3.5KVA generator', category:'home', price:210000, seller:'emeka', city:'Enugu, NG', desc:'Runs quiet, serviced last month. Selling because we just moved to a place with steady power.', payments:['bank'], sales:0, reviews:0 },
-    { id:'l4', title:'PS5 console + 2 pads', category:'gaming', price:620000, seller:'fatima', city:'Kano, NG', desc:'Disc edition, comes with two controllers and three games. Works perfectly, upgrading to a PC.', payments:['bank'], sales:20, reviews:15 },
-    { id:'l5', title:'Home deep-clean, 2 hours', category:'services', price:12000, seller:'cleanright', city:'Abuja, NG', desc:'Two-person team, bring our own supplies. Kitchen, bathrooms and living areas covered.', payments:['bank'], sales:1, reviews:0 },
-    { id:'l6', title:'Sturdy commuter bicycle', category:'vehicles', price:95000, seller:'yusuf', city:'Kaduna, NG', desc:'Steel frame, recently serviced brakes and chain. Great for short city rides.', payments:['bank'], sales:0, reviews:2 },
-    { id:'l7', title:'Leather strap wristwatch', category:'fashion', price:25000, seller:'grace', city:'Lagos, NG', desc:'Worn twice. Genuine leather strap, stainless steel case, still has warranty card.', payments:['bank'], sales:3, reviews:1 },
-    { id:'l8', title:'Ergonomic office chair', category:'home', price:45000, seller:'tunde', city:'Ibadan, NG', desc:'Adjustable height and lumbar support. Selling as I now work from a shared office.', payments:['bank'], sales:0, reviews:0 }
-  ];
+  /* The market starts empty: nothing is pre-filled with made-up items or sellers. */
+  var SEED_LISTINGS = [];
+  /* Earlier preview versions shipped sample listings. Anything saved from them is cleaned out on load. */
+  var OLD_SAMPLE_IDS = ['l1','l2','l3','l4','l5','l6','l7','l8'];
+  var OLD_SAMPLE_SELLERS = ['chidi','amaka','emeka','fatima','cleanright','yusuf','grace','tunde'];
 
   /* ---------------- State ---------------- */
   var state = load('mp_state', null) || {
@@ -1127,7 +1145,7 @@
     rider: null,
     settings: { notifyOrders: true, notifyMessages: true, paymentMethods: ['bank'] },
     following: [],
-    chats: { chidi: [ { from:'them', text:"Hi! Thanks for checking out the iPhone — still available, happy to answer anything.", time:Date.now()-86400000 } ] },
+    chats: {},
     buyerTrust: 75,
     promotions: [],
     saved: [],
@@ -1148,6 +1166,13 @@
   if(typeof state.riderOnline !== 'boolean'){ state.riderOnline = false; }
   if(!state.riderStats){ state.riderStats = { earnings: 0, deliveries: 0, payouts: [] }; }
   if(!state.riderScores){ state.riderScores = {}; }
+  /* Remove sample items and sample sellers saved by earlier preview versions */
+  state.listings = state.listings.filter(function(l){ return OLD_SAMPLE_IDS.indexOf(l.id) === -1; });
+  state.saved = state.saved.filter(function(id){ return OLD_SAMPLE_IDS.indexOf(id) === -1; });
+  state.following = state.following.filter(function(id){ return OLD_SAMPLE_SELLERS.indexOf(id) === -1; });
+  OLD_SAMPLE_SELLERS.forEach(function(id){ delete state.chats[id]; });
+  state.notifications = state.notifications.filter(function(n){ return !(n.action && n.action.type==='chat' && OLD_SAMPLE_SELLERS.indexOf(n.action.id) > -1); });
+  state.riderJobs = state.riderJobs.filter(function(j){ return j.status !== 'available'; });
   /* Bank transfer is the only payment method — convert anything saved from earlier versions */
   state.listings.forEach(function(l){ l.payments = ['bank']; });
   state.orders.forEach(function(o){ o.method = 'bank'; });
@@ -1338,6 +1363,12 @@
 
   function renderGrid(){
     var grid = document.getElementById('listing-grid');
+    var noListings = state.listings.length === 0;
+    document.getElementById('chip-row').style.display = noListings ? 'none' : '';
+    document.getElementById('home-head').style.display = noListings ? 'none' : '';
+    grid.style.display = noListings ? 'none' : '';
+    document.getElementById('home-empty').style.display = noListings ? '' : 'none';
+    if(noListings) return;
     var items = state.listings.filter(function(l){
       var matchCat = activeCat==='all' || l.category===activeCat;
       var matchCity = activeCity==='All locations' || l.city===activeCity;
@@ -1415,6 +1446,13 @@
       return;
     }
 
+    if(state.listings.length === 0){
+      wrap.innerHTML = '<div class="empty" style="padding:44px 28px 20px;">Nothing to search yet. Listings show up here as soon as people add them.</div>'+
+        '<div style="padding:0 28px;"><button class="btn btn-primary" id="search-empty-sell">List an item</button></div>';
+      document.getElementById('search-empty-sell').addEventListener('click', function(){ showView('sell'); });
+      return;
+    }
+
     var featuredItems = state.listings.filter(isFeatured);
     var promoItems = state.listings.filter(function(l){ return !!getPromo(l); }).slice(0,6);
     var boughtCats = uniqueCategoriesFromOrders();
@@ -1489,7 +1527,7 @@
           return '<span class="pay-badge">'+payIcon(p)+m.label+'</span>';
         }).join('') +'</div>'+
         '<button class="btn btn-primary" id="buy-btn">Buy this item</button>'+
-        (isOwn ? '' : '<button class="btn btn-outline" id="offer-btn" style="margin-top:10px;">Make an offer</button>')+
+        (isOwn ? '<p class="field-hint" style="text-align:center; margin-top:12px;">Preview: you can buy your own listing to try checkout, escrow and delivery.</p>' : '<button class="btn btn-outline" id="offer-btn" style="margin-top:10px;">Make an offer</button>')+
       '</div>';
     document.getElementById('buy-btn').addEventListener('click', function(){
       closeSheet(itemBackdrop);
@@ -1559,7 +1597,7 @@
       b.textContent = nowFollowing ? 'Following' : 'Follow';
       b.classList.toggle('following', nowFollowing);
     });
-    toast(nowFollowing ? 'Following '+PEOPLE[sellerId].name : 'Unfollowed '+PEOPLE[sellerId].name);
+    toast(nowFollowing ? 'Following '+personName(sellerId) : 'Unfollowed '+personName(sellerId));
     if(document.getElementById('view-profile').classList.contains('active')) renderProfile();
   }
 
@@ -1711,7 +1749,7 @@
       if(activeChatSeller===seller && chatBackdrop.classList.contains('open')){
         renderChatMessages();
       } else if(state.settings.notifyMessages){
-        pushNotification('New message from '+PEOPLE[seller].name, { type:'chat', id:seller });
+        pushNotification('New message from '+personName(seller), { type:'chat', id:seller });
       }
     }, 1100);
   }
@@ -1768,12 +1806,12 @@
     var pi = priceInfo(item);
     document.getElementById('offer-content').innerHTML =
       '<div class="success-wrap"><div class="success-icon">'+ICON_BIKE+'</div>'+
-      '<h2 style="font-size:1.1rem;">Waiting for '+escapeHtml(PEOPLE[item.seller].name)+'…</h2>'+
+      '<h2 style="font-size:1.1rem;">Waiting for '+escapeHtml(personName(item.seller))+'…</h2>'+
       '<p style="color:var(--muted); font-size:0.85rem;">Sending your offer of '+fmtNaira(offer)+'</p></div>';
     setTimeout(function(){ showOfferResult(item, offer, pi.final); }, 1000);
   }
   function showOfferResult(item, offer, asking){
-    var sellerName = PEOPLE[item.seller].name;
+    var sellerName = personName(item.seller);
     var body;
     if(offer >= asking*0.85){
       body = '<div class="success-wrap"><div class="success-icon">'+ICON_CHECK+'</div>'+
@@ -1936,7 +1974,7 @@
         '<div class="kv-row"><span>Estimated arrival</span><b>'+order.delivery.eta+'</b></div>'+
         '<div class="kv-row"><span>Delivery fee</span><b>'+fmtNaira(DELIVERY_FEE)+'</b></div>'+
         '</div>'+
-        '<p class="field-hint">Delivery fee added to your escrow total. You\'ll find a delivery code in your order — give it to the rider when they arrive. Payment stays held until you confirm the item arrived.</p>'+
+        '<p class="field-hint">Demo rider. Delivery fee added to your escrow total. You\'ll find a delivery code in your order — give it to the rider when they arrive. Payment stays held until you confirm the item arrived.</p>'+
         '<button class="btn btn-primary" id="done-order" style="margin-top:10px;">Done</button></div>';
       document.getElementById('done-order').addEventListener('click', function(){ closeSheet(checkoutBackdrop); toast('Rider on the way'); renderProfile(); });
       scheduleDeliverySim(order);
@@ -2012,7 +2050,7 @@
     state.listings.unshift(listing);
     state.myListingIds.unshift(id);
     save();
-    toast('Listing published');
+    toast('Listing published (saved on this device)');
     document.getElementById('sell-title').value='';
     document.getElementById('sell-price').value='';
     document.getElementById('sell-desc').value='';
@@ -2098,6 +2136,7 @@
     document.getElementById('rider-banner').style.display = state.rider ? 'none' : '';
   }
   document.getElementById('rider-banner-btn').addEventListener('click', function(){ showView('dispatch'); });
+  document.getElementById('home-empty-sell').addEventListener('click', function(){ showView('sell'); });
 
   function renderDispatchStatus(){
     var wrap = document.getElementById('dispatch-status-wrap');
@@ -2140,7 +2179,7 @@
     return state.riderJobs.filter(function(j){ return j.status==='accepted' || j.status==='picked_up'; })[0];
   }
   function generateJobs(){
-    var pool = state.listings.filter(function(l){ return l.seller !== 'you'; });
+    var pool = state.listings.slice();
     pool = pool.slice().sort(function(){ return Math.random() - 0.5; }).slice(0,3);
     var jobs = pool.map(function(l){
       var areas = DROP_AREAS[l.city] || ['City centre','Market road','Station area'];
@@ -2252,8 +2291,8 @@
         html += avail.map(availableJobHtml).join('');
         html += '<p class="field-hint">Demo requests. In the live app these come from real buyer orders near you.</p>';
       } else {
-        html += '<div class="empty" style="padding:24px 0;">No requests right now.</div>'+
-                '<button class="btn btn-outline" id="rider-find-jobs">Look for more deliveries</button>';
+        html += '<div class="empty" style="padding:24px 0;">'+(state.listings.length ? 'No requests right now.' : 'No delivery requests yet. They appear when buyers choose delivery on an order.')+'</div>'+
+                (state.listings.length ? '<button class="btn btn-outline" id="rider-find-jobs">Look for more deliveries</button>' : '');
       }
     } else {
       html += '<div class="empty" style="padding:28px 0;">You\'re offline. Switch on above to start receiving delivery requests.</div>';
@@ -2417,7 +2456,7 @@
       state.riderScores[o.delivery.riderId] = Math.min(100, riderTrust(o.delivery.riderId) + 2);
     }
     save();
-    toast('Payment released to '+(PEOPLE[o.seller] ? PEOPLE[o.seller].name : 'the seller'));
+    toast('Payment released to '+(PEOPLE[o.seller] ? personName(o.seller) : 'the seller'));
     document.getElementById('order-content').innerHTML = orderDetailHtml(o);
     renderProfile();
   }
@@ -2670,7 +2709,7 @@
       listings: cloneSeedListings(), myListingIds: [], orders: [], rider: null,
       settings: { notifyOrders: true, notifyMessages: true, paymentMethods: ['bank'] },
       following: [],
-      chats: { chidi: [ { from:'them', text:"Hi! Thanks for checking out the iPhone — still available, happy to answer anything.", time:Date.now()-86400000 } ] },
+      chats: {},
       buyerTrust: 75,
       promotions: [],
       saved: [],

@@ -53,4 +53,4 @@ It is a static site. Upload the files to any static host (GitHub Pages, Netlify,
 
 ## What comes next
 
-A production version needs accounts, a shared database, a licensed payment provider for escrow and payouts, and live dispatch. The launch specification covers the screens, data model, business rules, payment and regulatory requirements, safety rules and a launch checklist.
+A production version needs accounts, a shared database, a licensed payment provider for escrow and payouts, and live dispatch. The launch specification covers the screens, data model, business rules, payment and regulatory requirements, safety rules and a launch checklist. 
